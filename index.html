@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <script defer src="face-api.min.js"></script>
+    <script defer src="./imgArr.js" type="module"></script>
+    <script defer src="script.js" type="module"></script>
+    <script defer src="./arraycompare.js"></script>
+    <title>Face Recognition</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        flex-flow: column;
+      }
+
+      #container {
+        width: 100%;
+      }
+
+      button {
+        width: 300px;
+        height: 70px;
+        font: 600 20px sans-serif;
+        border-radius: 10px;
+        margin: 15px;
+        border: none;
+        background: rgb(119, 119, 226);
+        color: white;
+      }
+
+      button:hover {
+        cursor: pointer;
+      }
+
+      canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+
+      .grid:after {
+        content: '';
+        display: block;
+        clear: both;
+      }
+      /* ---- .grid-item ---- */
+
+      .grid-item {
+        max-height: 500px;
+        width: 33.333%;
+        object-fit: contain;
+        float: left;
+      }
+      .grid-item img {
+        display: block;
+        max-width: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <button id="img-loader-o">Fetch all original size images</button>
+    <button id="img-loader-m">Fetch all medium size images</button>
+    <button id="img-loader-sm">Fetch all small size images</button>
+    <div id="container"></div>
+    <button id="csvExport">export to CSV</button>
+    <button id="csvExportUrls">export to CSV url without faces</button>
+
+    <script></script>
+  </body>
+</html>
