@@ -5,18 +5,18 @@ let urlWithoutFaces = [];
 
 const launchApp = (imgUrls, filename, filename2) => {
   Promise.all([
-    faceapi.nets.faceRecognitionNet.loadFromUri('./models'),
-    faceapi.nets.faceLandmark68Net.loadFromUri('./models'),
-    faceapi.nets.ssdMobilenetv1.loadFromUri('./models'),
+    // faceapi.nets.faceRecognitionNet.loadFromUri('./models'),
+    faceapi.nets.tinyFaceDetector.loadFromUri('./models'),
+    // faceapi.nets.ssdMobilenetv1.loadFromUri('./models'),
   ]).then(start);
 
   const drawResult = (img, faces) => {
-    if (faces.length < 0) {
+    if (faces?.length) {
       console.log('No face detected');
     } else {
       let canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
+      canvas.width = img?.width;
+      canvas.height = img?.height;
       let ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0);
       ctx.strokeStyle = '#00ff00';
@@ -40,15 +40,15 @@ const launchApp = (imgUrls, filename, filename2) => {
   const processImage = async (url, onReady) => {
     let img = await document.createElement('img');
     img.crossOrigin = 'anonymous';
-
+    let faces;
     img.onload = async () => {
       try {
         let time = Date.now();
         //everything happen in this single line.
         //this is the only part of the code who need to be measured
-        let faces = await faceapi.detectAllFaces(img);
+        faces = await faceapi.detectAllFaces(img, new faceapi.TinyFaceDetectorOptions());
         let processTime = Date.now() - time;
-        if (faces.length > 0) {
+        if (faces?.length) {
           let imgObj = {
             url,
             nbFaces: faces.length,
@@ -57,21 +57,39 @@ const launchApp = (imgUrls, filename, filename2) => {
             w: img.width,
             h: img.height,
           };
+          console.table({
+            'Process starts with': url,
+            'Faces count': faces.length,
+            'Total process time': Math.round(processTime),
+            'Process time by face': Math.round(processTime / faces.length),
+            Widht: img.width,
+            Height: img.height,
+          });
           infos.push(imgObj);
-          onReady(img, faces);
         } else {
           let imgObj = {
             url,
             w: img.width,
             h: img.height,
           };
+          console.table({
+            'Process starts with': url,
+            'Faces count': 'Faces not found',
+            'Total process time': Math.round(processTime),
+            'Process time by face': 'Faces not found',
+            Widht: img.width,
+            Height: img.height,
+          });
           urlWithoutFaces.push(imgObj);
         }
       } catch (error) {
         console.log(error);
       } finally {
-        onReady();
+        onReady(img, faces);
       }
+    };
+    img.onerror = () => {
+      onReady();
     };
     img.src = url;
   };
@@ -140,9 +158,11 @@ const launchApp = (imgUrls, filename, filename2) => {
           }, 500);
         } else {
           console.log('FINISH');
+          console.table({
+            'Recognized images': infos.length - 1,
+            'Not recognized inages': urlWithoutFaces.length - 1,
+          });
         }
-        console.log(infos, 'Detected faces');
-        console.log(urlWithoutFaces, 'Not detected');
       });
     };
     processImageAndDrawResult(imgUrls.shift());
